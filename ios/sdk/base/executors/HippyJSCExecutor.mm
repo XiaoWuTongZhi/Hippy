@@ -350,7 +350,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context)
     }
     _valid = NO;
     self.pScope->WillExit();
-    self.pScope = nullptr;
+    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+    task->callback = [self]() {
+        self.pScope = nullptr;
+    };
+    self.pScope->GetTaskRunner()->PostTask(task);
     _JSContext.name = @"HippyJSContext(delete)";
     _JSContext = nil;
     _JSGlobalContextRef = NULL;
